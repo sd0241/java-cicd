@@ -1,0 +1,65 @@
+pipeline {
+    agent none
+    triggers {
+    pollSCM '* * * * *'
+    }
+
+    parameters {
+        string name: 'IMAGE_NAME', defaultValue: 'test'
+        string name: 'IMAGE_REGISTRY_ACCOUNT', defaultValue: 'sd0241'
+    }
+    stages {
+        stage ('Checkout') {
+            agent any
+            steps { 
+                git branch: 'main', url: 'https://github.com/sd0241/java-cicd'
+            }
+        }
+        stage('Build') {
+            agent { 
+                docker { image 'maven:3-openjdk-8' }
+            }
+            steps {
+                sh 'mvn clean package -DskipTests=true'
+            }
+        }
+        stage('Test') {
+            agent{
+                docker { image 'maven:3-openjdk-8' }
+            }
+            steps{
+                sh 'mvn test'
+            }
+        }
+        stage('Build Docker Image') {
+            agent any
+            steps {
+                sh "docker build -t ${params.IMAGE_NAME} ."
+            }
+        }
+        stage('Tag Docker Image') {
+            agent any
+                steps {
+                    sh "docker image tag ${params.IMAGE_NAME} ${params.IMAGE_REGISTRY_ACCOUNT}/${params.IMAGE_NAME}:$BUILD_NUMBER"
+                    sh "docker image tag ${params.IMAGE_NAME} ${params.IMAGE_REGISTRY_ACCOUNT}/${params.IMAGE_NAME}:latest"
+                }
+        }
+
+        stage('Publish Docker Image') {
+            agent any
+            steps {
+                withDockerRegistry(credentialsId: 'docker-hub-token', url: 'https://index.docker.io/v1/') {
+                sh "docker image push ${params.IMAGE_REGISTRY_ACCOUNT}/${params.IMAGE_NAME}:$BUILD_NUMBER"
+                }
+            }
+        }
+        stage('Run Docker Container') {
+            agent {
+                docker { image 'docker:dind' }
+            }
+            steps {
+                sh "docker -H tcp://192.168.56.104:2375 container run -d --name mycon-test -p 80:8080 ${params.IMAGE_REGISTRY_ACCOUNT}/${params.IMAGE_NAME}:$BUILD_NUMBER"
+            }
+        }
+    }
+}
