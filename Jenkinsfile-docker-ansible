@@ -60,9 +60,9 @@ pipeline {
                 args '-u 0:0 -e DOCKER_HOST=tcp://192.168.56.104:2375'
                 }
             }
-      steps {
-        ansiblePlaybook(playbook: 'docker-container-deploy.yaml')
-      }
-    }
+            steps {
+            ansiblePlaybook(playbook: 'docker-container-deploy.yaml')
+             }
+         }
     }
 }
