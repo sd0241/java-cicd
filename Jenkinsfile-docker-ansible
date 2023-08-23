@@ -55,11 +55,14 @@ pipeline {
         }
         stage('Run Docker Container') {
             agent {
-                docker { image 'docker:dind' }
+                docker { 
+                image 'c1t1d0s7/jenkins-ansible'
+                args '-u 0:0 -e DOCKER_HOST=tcp://192.168.56.104:2375'
+                }
             }
-            steps {
-                sh "docker -H tcp://192.168.56.104:2375 container run -d --name mycon-test -p 80:8080 ${params.IMAGE_REGISTRY_ACCOUNT}/${params.IMAGE_NAME}:$BUILD_NUMBER"
-            }
-        }
+      steps {
+        ansiblePlaybook(playbook: 'docker-container-deploy.yaml')
+      }
+    }
     }
 }
