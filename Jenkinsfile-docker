@@ -33,6 +33,12 @@ pipeline {
                 sh "docker build -t ${params.IMAGE_NAME} ."
             }
         }
+            stage('Tag Docker Image') {
+            agent any
+                steps {
+                    sh "docker image tag ${params.IMAGE_NAME} ${params.IMAGE_REGISTRY_ACCOUNT}/${params.IMAGE_NAME}"
+                }
+        }
 
         stage('Publish Docker Image') { 
             agent any
