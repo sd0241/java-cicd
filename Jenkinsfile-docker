@@ -1,9 +1,13 @@
 pipeline {
     agent none
-      parameters {
+    triggers {
+    pollSCM '* * * * *'
+    }
+
+    parameters {
         string name: 'IMAGE_NAME', defaultValue: 'test'
         string name: 'IMAGE_REGISTRY_ACCOUNT', defaultValue: 'sd0241'
-  }
+    }
     stages {
         stage ('Checkout') {
             agent any
