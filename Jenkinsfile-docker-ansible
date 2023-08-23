@@ -1,9 +1,5 @@
 pipeline {
     agent none
-    triggers {
-    pollSCM '* * * * *'
-    }
-
     parameters {
         string name: 'IMAGE_NAME', defaultValue: 'test'
         string name: 'IMAGE_REGISTRY_ACCOUNT', defaultValue: 'sd0241'
