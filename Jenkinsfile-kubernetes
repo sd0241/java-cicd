@@ -12,12 +12,6 @@ spec:
     - sleep
     args:
     - infinity
-  - name: git
-    image: alpine/git
-    command:
-    - sleep
-    args:
-    - infinity
   - name: kaniko
     image: gcr.io/kaniko-project/executor:debug
     command:
@@ -62,32 +56,7 @@ spec:
     stage('Build & Tag & Push Docker Image') {
       steps {
         container('kaniko') {
-          sh 'executor --context=$WORKSPACE --destination=sd0241/test:$BUILD_NUMBER --destination=sd0241/test:latest'
-        }
-      }
-    }
-    stage('Update K8s Manifests & Push') {
-      environment {
-        githubUser = 'kimdo' //Ryan Jang
-        githubEmail = '1a1a23@naver.com' //c1t1d0s7@example.com
-        githubId = 'sd0241' //c1t1d0s7 
-        githubRepo = 'manifest' //jenkins-kube-deploy
-        githubURL = "https://github.com/${githubId}/${githubRepo}.git"
-        dockerhubId = 'sd0241' //c1t1d0s7
-        dockerhubRepo = 'test' //hello-world
-      }
-      steps {
-        container('git') {
-          git branch: 'main', credentialsId: 'manifest', url: "${githubURL}"
-          sh "git config --global --add safe.directory ${workspace}"
-          sh "git config --global user.name ${githubUser}"
-          sh "git config --global user.email ${githubEmail}"
-          sh 'sed -i "s/image:.*/image: ${dockerhubId}\\/${dockerhubRepo}:${BUILD_NUMBER}/g" deployment.yaml'
-          sh 'git add deployment.yaml'
-          sh 'git commit -m "Jenkins Build Number - ${BUILD_NUMBER}"'
-          withCredentials([gitUsernamePassword(credentialsId: 'manifest', gitToolName: 'Default')]) {
-            sh 'git push --set-upstream origin +main'
-          }
+          sh 'executor --context=dir://$WORKSPACE --destination=sd0241/test:$BUILD_NUMBER --destination=sd0241/test:latest'
         }
       }
     }
