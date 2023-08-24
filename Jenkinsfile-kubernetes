@@ -71,7 +71,7 @@ spec:
         githubUser = 'kimdo' //Ryan Jang
         githubEmail = '1a1a23@naver.com' //c1t1d0s7@example.com
         githubId = 'sd0241' //c1t1d0s7 
-        githubRepo = 'java-cicd' //jenkins-kube-deploy
+        githubRepo = 'manifest' //jenkins-kube-deploy
         githubURL = "https://github.com/${githubId}/${githubRepo}.git"
         dockerhubId = 'sd0241' //c1t1d0s7
         dockerhubRepo = 'test' //hello-world
@@ -85,7 +85,7 @@ spec:
           sh 'sed -i "s/image:.*/image: ${dockerhubId}\\/${dockerhubRepo}:${BUILD_NUMBER}/g" deployment.yaml'
           sh 'git add deployment.yaml'
           sh 'git commit -m "Jenkins Build Number - ${BUILD_NUMBER}"'
-          withCredentials([gitUsernamePassword(credentialsId: 'github-credential', gitToolName: 'Default')]) {
+          withCredentials([gitUsernamePassword(credentialsId: 'manifest-credential', gitToolName: 'Default')]) {
             sh 'git push --set-upstream origin main'
           }
         }
