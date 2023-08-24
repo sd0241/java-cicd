@@ -41,7 +41,7 @@ spec:
     stage('Checkout') {
       steps {
         container('maven') {
-          git branch: 'main', url: '<URL>'
+          git branch: 'main', url: 'https://github.com/sd0241/java-cicd'
         }
       }
     }
@@ -62,7 +62,7 @@ spec:
     stage('Build & Tag & Push Docker Image') {
       steps {
         container('kaniko') {
-          sh 'executor --context=$WORKSPACE --destination=<IMAGE>:$BUILD_NUMBER --destination=<IMAGE>:latest'
+          sh 'executor --context=$WORKSPACE --destination=sd0241/test:$BUILD_NUMBER --destination=sd0241/test:latest'
         }
       }
     }
